@@ -1,0 +1,115 @@
+---
+title: "Cholesterol in Fast Food"
+subtitle: "STAT 330 Portfolio Project Proposal"
+author: "Katherine Michael, Jessi Hales, Zach Brown"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+
+**Group members:** 
+Katherine Michael
+Jessi Hales
+Zach Brown
+
+## Question and audience
+
+**Can we predict cholesterol accurately from other nutritional information and the restaurant a food comes from? Which nutrients are the most influential? The intended audience is consumers of fast food with the purpose of spreading awareness about fast food health. The response is cholesterol and some of the important candidate predictors include company, calories, total fat, saturated fat, sodium, carbs, fibers, sugars, and proteins. 
+
+## Data
+
+**Provide a working source link or citation. Describe the observational unit, dimensions, response, candidate predictors, collection process if known, and evidence that the data can answer your question. Address permission to share or retrieve the data and any privacy, representation, measurement, or ethical concern.**
+
+https://www.kaggle.com/datasets/ulrikthygepedersen/fastfood-nutrition?resource=download 
+The observational unit is item of food. The dimensions of our dataset are 515 rows x 17 columns. Our response variable is cholesterol (mg) and our candidate predictors are restaurant, calories, cal_fat, total_fat (g), sat_fat (g), trans_fat (g), sodium (g), total_carb (g), fiber (g), sugar (g), protein (g). We don't know the exact collection process, but we know they took menu items from the top 6 fast food restaurants and collected the data on the nutritional information of each menu item. There is evidence that this data will be able to predict cholesterol since nutrients are often correlated with each other. This is a public dataset from Kaggle, so it's open for anyone to use freely.
+```{r}
+library(tidyverse)
+fastfood = read.csv("fastfood.csv")
+glimpse(fastfood)
+```
+
+## One useful first look
+
+```{r}
+# didn't include restaurant because it's categorical
+fastfood |> 
+  pivot_longer(
+    cols = c(calories, cal_fat, total_fat, sat_fat, trans_fat, sodium, total_carb, fiber, sugar, protein),
+    names_to = "factor",
+    values_to = "value"
+  ) |> 
+  ggplot(aes(x = value, y = cholesterol)) +
+    geom_point(alpha = 0.5) +
+    facet_wrap(~ factor, scales = "free_x") +  #creates separate plots
+    labs(
+      x = NULL,
+      y = "Cholestrol",
+      title = "Cholestrol by Factor"
+    )
+# Create one figure that directly informs your research question.
+# Include a useful title, labels, units, and accessible colors.
+```
+
+All of the predictors we're considering seem like they have a fairly positively linear correlation with cholesterol except for fiber, sugar, and total_carb, which don't seem to have as strong as a correlation. It's also important to note that we may have some outliers in our data, which we'll need to test later to see if their leverage is unuaually high and pulling the data too strongly.
+
+## Baseline model
+
+For our simple starting model we're using a model with all of the predictors from our potential predictor options. As we decide whether or not to keep certain predictors, this baseline model will be helpful for comparison. 
+
+```{r}
+fastfood_mod = lm(cholesterol ~ calories + cal_fat + total_fat + sat_fat + trans_fat + sodium + total_carb + fiber + sugar + protein, data=fastfood)
+
+summary(fastfood_mod)
+# Fit the baseline and display only the output needed below.
+```
+Protein proved to be one of our most influential predictors of cholesterol. Holding the other predictors constant, a one gram increase in protein is associated with an estimated increase of about 2.68 mg on average. We have a lot of predictors, not all of which are significantly correlated with cholesterol, so it may be a good idea to use a different model and eliminate some of the predictors we're using.
+
+## Where the analysis could go
+
+1. Model structure - We plan to add interaction factors between different macronutrient and the restaurant chain. We will also explore if any variables in the data set could be improved with log transformations. This will help answer our question by making our data set more linear if it struggles with that and will help us predict cholesterol with interaction. 
+
+2. Selection and shrinkage - we plan to use a lasso regression to perform a variable selection and deal with the multicollinearity of our predictor values. This will help answer our question by taking out unnecessary variables that are just adding noise and reducing self-bias from multicollinear.
+
+
+## AI disclosure and sources
+
+Gemini prompts:
+1. why is my lm() function able to find most of the factors in my dataset but not all of them
+  response:
+  Here are the most common reasons why this happens:
+• The Reference Level: R automatically chooses one factor level as a baseline (reference group) to prevent perfect collinearity. The coefficients of the other levels are calculated in comparison to this missing baseline.
+• Perfect Collinearity: If two or more factor levels always occur together, or if a factor perfectly aligns with another independent variable, R cannot mathematically estimate both. It will drop the redundant level and mark it as NA.
+• Zero Variance / Single Value: If a factor level only has one observation or has the exact same value for the outcome variable across all its observations, the model cannot calculate its variance.
+• Missing Data (NaN/NA): If a specific factor level only exists in rows that contain missing values (NA) in other variables, those rows are completely dropped from the model before fitting.
+To help troubleshoot your specific model, could you share:
+• A quick look at your summary(model) output or which levels are missing?
+• The number of observations in your smallest factor level?
+• Whether you see NA next to the missing factors or if they are completely absent?
+
+
+
+2. it's not any of those problems, it will find my first 6 predictors but then after that gives a not found error for predictors after
+  response:
+  The error "object 'predictor_name' not found" occurs because R cannot find those specific columns in the environment or dataset you provided. This is a syntax or data-scoping issue rather than a statistical one.
+Since it perfectly cuts off after exactly 6 predictors, here are the two most likely reasons and how to fix them:
+• Typo in the formula or dataset: A misspelled column name, a missing comma, or a misplaced plus sign (+) right after the 6th predictor will cause R to break and look for a variable that doesn't exist.
+• The data argument is missing or broken: If you didn't explicitly include data = my_dataset inside lm(), R will try to look for the variables globally in your workspace. It might find the first 6 if they exist as standalone vectors in your environment, but fail on the rest.
+
+How to Check and Fix It
+
+1. Verify your syntax: Ensure your lm call looks exactly like this, with plus signs separating each variable and the data argument specified at the end:R
+model <- lm(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8, data = my_dataset)
+Use code with caution.
+2. Check your dataset column names directly: Run names(my_dataset) right before your regression to confirm that the 7th and 8th predictors are spelled exactly the same way (including capitalization) as they are in your formula.
+To spot the exact syntax issue, could you reply with:
+• The exact code line you are using to run the lm() function?
+• The output of names(your_dataset_name)?
+
