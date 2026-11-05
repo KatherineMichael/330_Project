@@ -1,0 +1,85 @@
+---
+title: "Cholesterol in Fast Food"
+subtitle: "STAT 330 Portfolio Project Proposal"
+author: "Katherine Michael, Jessi Hales, Zach Brown"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-tip}
+This proposal is separate from the final case study and does not count toward its word range. Keep the required headings, but add, remove, or move code chunks and output as needed. Delete this note and all bold prompts before submitting.
+:::
+
+**Group members:** 
+Katherine Michael
+Jessi Hales
+Zach Brown
+
+## Question and audience
+
+**Can we predict cholesterol accurately from other nutritional information and the restaurant a food comes from? Which nutrients are the most influential? The intended audience is consumers of fast food with the purpose of spreading awareness about fast food health. The response is cholesterol and some of the important candidate predictors include company, calories, total fat, saturated fat, sodium, carbs, fibers, sugars, and proteins. 
+
+## Data
+
+**Provide a working source link or citation. Describe the observational unit, dimensions, response, candidate predictors, collection process if known, and evidence that the data can answer your question. Address permission to share or retrieve the data and any privacy, representation, measurement, or ethical concern.**
+
+https://www.kaggle.com/datasets/ulrikthygepedersen/fastfood-nutrition?resource=download 
+The observational unit is item of food. The dimensions of our dataset are 515 rows x 17 columns. Our response variable is cholesterol (mg) and our candidate predictors are restaurant, calories, cal_fat, total_fat (g), sat_fat (g), trans_fat (g), sodium (g), total_carb (g), fiber (g), sugar (g), protein (g). We don't know the exact collection process, but we know they took menu items from the top 6 fast food restaurants and collected the data on the nutritional information of each menu item. There is evidence that this data will be able to predict cholesterol since nutrients are often correlated with each other. This is a public dataset from Kaggle, so it's open for anyone to use freely.
+```{r}
+library(tidyverse)
+fastfood = read.csv("fastfood.csv")
+glimpse(fastfood)
+```
+
+## One useful first look
+
+```{r}
+# didn't include restaurant because it's categorical
+fastfood |> 
+  pivot_longer(
+    cols = c(calories, cal_fat, total_fat, sat_fat, trans_fat, sodium, total_carb, fiber, sugar, protein),
+    names_to = "factor",
+    values_to = "value"
+  ) |> 
+  ggplot(aes(x = value, y = cholesterol)) +
+    geom_point(alpha = 0.5) +
+    facet_wrap(~ factor, scales = "free_x") +  #creates separate plots
+    labs(
+      x = NULL,
+      y = "Cholestrol",
+      title = "Cholestrol by Factor"
+    )
+# Create one figure that directly informs your research question.
+# Include a useful title, labels, units, and accessible colors.
+```
+
+**In two to four sentences, explain the most important pattern. Do not make a causal claim unless the study design supports one.**
+
+## Baseline model
+
+**Name and justify one simple starting model.**
+
+```{r}
+# Fit the baseline and display only the output needed below.
+```
+
+**Interpret one important coefficient, contrast, or prediction in context. Include direction, magnitude, units or scale, and uncertainty. Then identify one specific limitation, unexplained pattern, or opportunity for improvement.**
+
+## Where the analysis could go
+
+**Choose two different course-method families from the project instructions. For each, state what you might do and how it could help answer the question. These methods will form the core of the project and may change after feedback.**
+
+1. **Possible direction:** Replace.
+2. **Possible direction:** Replace.
+
+## AI disclosure and sources
+
+**Disclose any AI used for debugging, proofreading, or other help with the proposal. This does not satisfy the required AI extension. Write “No AI used” if applicable. Cite the dataset and any other sources that materially informed the proposal.**
