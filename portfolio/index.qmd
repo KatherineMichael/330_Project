@@ -63,7 +63,7 @@ Details are in the [AI-use record](ai-use.qmd).
 
 ## Data and code
 
-- **Data:** Replace with a working source link or citation and any brief acquisition note needed to reproduce the project.
-- **Repository:** Replace with your repository URL.
+- **Data:** https://www.kaggle.com/datasets/ulrikthygepedersen/fastfood-nutrition?resource=download. 
+- **Repository:** https://katherinemichael.github.io/330_Project/
 - [AI-use record](ai-use.qmd)
 - **Other sources:** Cite package documentation, articles, code, and other sources that materially informed the work.
